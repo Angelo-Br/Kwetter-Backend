@@ -3,14 +3,14 @@ name: Build the UserService
 on:
   push:
     branches:
-      - main
+      - master
     paths:
       - "UserService/**"
       - "UserService.Tests/**"
       - ".github/workflows/build-user-service.yml"
   pull_request:
     branches: 
-      - main
+      - master
       - dev
     paths:
       - "UserService/**"
