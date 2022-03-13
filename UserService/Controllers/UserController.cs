@@ -7,7 +7,7 @@ namespace UserService.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    public class UserController : Controller
+    public class UserController : ControllerBase
     {
         /// <summary>
         /// Database context for users, this is used to make calls to the database.
@@ -31,7 +31,12 @@ namespace UserService.Controllers
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
             var result = await _dbContext.Users.ToListAsync();
-            return Ok(result);
+            List<User> users = new List<User>();
+            foreach (var item in result)
+            {
+                users.Add(new User() { Id = item.Id });
+            }
+            return Ok(users);
         }
     }
 }

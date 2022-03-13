@@ -24,6 +24,7 @@ namespace UserService.Tests
             _controller = new UserController(_dbContext);
             SeedUserInMemoryDatabaseWithData(_dbContext);
         }
+
         [Fact]
         public async Task GetUsers_WhenCalled_ReturnListOfUsers()
         {
