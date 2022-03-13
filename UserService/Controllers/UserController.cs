@@ -27,8 +27,8 @@ namespace UserService.Controllers
         /// Get all the Users from the database
         /// </summary>
         /// <returns>All Users in Db</returns>
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<User>>> GetUsers()
+        [HttpGet("{users}")]
+        public async Task<IActionResult> GetUsers()
         {
             var result = await _dbContext.Users.ToListAsync();
             List<User> users = new List<User>();
