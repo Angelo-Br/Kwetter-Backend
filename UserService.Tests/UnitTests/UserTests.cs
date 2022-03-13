@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,19 +11,25 @@ using Xunit;
 
 namespace UserService.Tests
 {
-    public class UserTests
+    public class UserTests: IDisposable
     {
+        private readonly UserController _controller;
+        private readonly UserServiceDatabaseContext _dbContext;
+
+        public UserTests()
+        {
+            var options = new DbContextOptionsBuilder<UserServiceDatabaseContext>().UseInMemoryDatabase(databaseName: "InMemoryImageDb").Options;
+
+            _dbContext = new UserServiceDatabaseContext(options);
+            _controller = new UserController(_dbContext);
+            SeedUserInMemoryDatabaseWithData(_dbContext);
+        }
         [Fact]
         public async Task GetUsers_WhenCalled_ReturnListOfUsers()
         {
-            var options = new DbContextOptionsBuilder<UserServiceDatabaseContext>().UseInMemoryDatabase(databaseName: "InMemoryUserDb").Options;
+            var result = await _controller.GetUsers();
 
-            var context = new UserServiceDatabaseContext(options);
-            SeedUserInMemoryDatabaseWithData(context);
-            var controller = new UserController(context);
-            var result = await controller.GetUsers();
-
-            var objectresult = Assert.IsType<OkObjectResult>(result.Result);
+            var objectresult = Assert.IsType<OkObjectResult>(result);
             var users = Assert.IsAssignableFrom<IEnumerable<User>>(objectresult.Value);
 
             Assert.Equal(3, users.Count());
@@ -41,7 +48,12 @@ namespace UserService.Tests
                 };
             context.Users.AddRange(data);
             context.SaveChanges();
+        }
 
+        public void Dispose()
+        {
+            _dbContext.Users.RemoveRange(_dbContext.Users.ToList());
+            _dbContext.SaveChanges();
         }
     }
 }
