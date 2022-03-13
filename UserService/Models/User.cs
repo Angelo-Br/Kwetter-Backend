@@ -16,10 +16,7 @@ namespace UserService.Models
         [Required]
         public int Id { get; set; }
 
-        /// <summary>
-        /// Token used to refresh the login session of the user
-        /// </summary>
-        public string RefreshToken { get; set; }
+     
 
     }
 }
