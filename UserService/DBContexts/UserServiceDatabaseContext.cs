@@ -50,6 +50,5 @@ namespace UserService.DBContexts
 
             base.OnConfiguring(optionsBuilder);
         }
-
     }
 }

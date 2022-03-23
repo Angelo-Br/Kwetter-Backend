@@ -4,6 +4,14 @@ using UserService.DBContexts;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: "CorsPolicy",
+        builder => builder.SetIsOriginAllowed((host) => true)
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials());
+});
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -17,6 +25,7 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddDbContext<UserServiceDatabaseContext>();
 
 using var userContext = new UserServiceDatabaseContext();
+//userContext.Database.EnsureDeleted();
 userContext.Database.EnsureCreated();
 
 var app = builder.Build();
@@ -28,6 +37,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "UserService v1"));
 }
+
+app.UseCors("CorsPolicy");
 
 app.UseHttpsRedirection();
 

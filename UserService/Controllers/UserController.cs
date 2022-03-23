@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using UserService.DBContexts;
+using UserService.DTO;
 using UserService.Models;
 
 namespace UserService.Controllers
@@ -27,7 +28,7 @@ namespace UserService.Controllers
         /// Get all the Users from the database
         /// </summary>
         /// <returns>All Users in Db</returns>
-        [HttpGet("{users}")]
+        [HttpGet("users")]
         public async Task<IActionResult> GetUsers()
         {
             var result = await _dbContext.Users.ToListAsync();
@@ -37,6 +38,28 @@ namespace UserService.Controllers
                 users.Add(new User() { Id = item.Id });
             }
             return Ok(users);
+        }
+
+        [HttpPost("adduser")]
+        public async Task<IActionResult> AddUser(LoginModel loginModel)
+        {
+            if (loginModel == null)
+            {
+                return BadRequest();
+            }
+            if (string.IsNullOrWhiteSpace(loginModel.Username))
+            {
+                return BadRequest(ModelState);
+            }
+
+            var user = new User()
+            {
+                Username = loginModel.Username
+            };
+
+            _dbContext.Users.Add(user);
+            await _dbContext.SaveChangesAsync();
+            return Ok();
         }
     }
 }
