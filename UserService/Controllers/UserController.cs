@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using UserService.DBContexts;
 using UserService.DTO;
 using UserService.Models;
+using RabbitMQLibrary;
 
 namespace UserService.Controllers
 {
@@ -14,14 +15,23 @@ namespace UserService.Controllers
         /// Database context for users, this is used to make calls to the database.
         /// </summary>
         private readonly UserServiceDatabaseContext _dbContext;
+        private readonly IMessageConsumer _messageConsumer;
 
         /// <summary>
         /// Constructer is used for receiving the database context at the creation of the UserController.
         /// </summary>
         /// <param name="dbContext">Context of the database</param>
-        public UserController(UserServiceDatabaseContext dbContext)
+        public UserController(UserServiceDatabaseContext dbContext, IMessageConsumer messageConsumer)
         {
+            _messageConsumer = messageConsumer;
             _dbContext = dbContext;
+        }
+
+        [HttpGet("test")]
+        public async Task<IActionResult> test()
+        {
+            await _messageConsumer.ConsumeMessageAsync("MailService", "mailmessage");
+            return Ok(new { });
         }
 
         /// <summary>
@@ -37,6 +47,7 @@ namespace UserService.Controllers
             {
                 users.Add(new User() { Id = item.Id });
             }
+            
             return Ok(users);
         }
 
@@ -61,5 +72,7 @@ namespace UserService.Controllers
             await _dbContext.SaveChangesAsync();
             return Ok();
         }
+
+       
     }
 }
