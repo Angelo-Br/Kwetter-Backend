@@ -27,13 +27,6 @@ namespace UserService.Controllers
             _dbContext = dbContext;
         }
 
-        [HttpGet("test")]
-        public async Task<IActionResult> test()
-        {
-            await _messageConsumer.ConsumeMessageAsync("MailService", "mailmessage");
-            return Ok(new { });
-        }
-
         /// <summary>
         /// Get all the Users from the database
         /// </summary>

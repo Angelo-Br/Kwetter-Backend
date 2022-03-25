@@ -1,6 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
 using RabbitMQLibrary;
 using System;
+using System.Text;
 
 namespace RabbitMQLibrary
 {
@@ -19,13 +22,24 @@ namespace RabbitMQLibrary
             services.AddScoped<IMessageProducer, MessageProducer>();
         }
 
-        public static void AddMessageConsuming(this IServiceCollection services)
+        public static void AddMessageConsuming(this IServiceCollection services, string queueName)
         {
             // Create a new rabbitmq connection and add it to the service collection that way every service has the connection
             var connection = new RabbitMqConnection();
-            services.AddSingleton(connection);
-            // Give the IMessagePublisher its MessageProducer that way it can start producing messages
-            services.AddScoped<IMessageConsumer, MessageConsumer>();
+
+            using var channel = connection.CreateChannel();
+            channel.ExchangeDeclare("Kwetter", "fanout", durable: true);
+            channel.QueueDeclare(queueName, durable: true, exclusive: false, autoDelete: false, arguments: null);
+            channel.QueueBind(queueName, "Kwetter", routingKey: string.Empty);
+
+            var consumer = new EventingBasicConsumer(channel);
+            consumer.Received += (model, ea) =>
+            {
+                var body = ea.Body.ToArray();
+                var message = Encoding.UTF8.GetString(body);
+                Console.WriteLine(" [x] Received {0}", message);
+            };
+            channel.BasicConsume(queue: queueName, autoAck: true, consumer: consumer);
         }
     }
 }
