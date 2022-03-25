@@ -1,5 +1,6 @@
 using Microsoft.OpenApi.Models;
 using RabbitMQLibrary;
+using UserService.Consumer;
 using UserService.DBContexts;
 
 
@@ -16,7 +17,8 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddControllers();
-builder.Services.AddMessageConsuming("MailService");
+var Model = builder.Services.AddMessageConsuming("MailService");
+new MailConsumer().Boot(Model, "MailService");
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>

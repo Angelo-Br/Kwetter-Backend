@@ -22,24 +22,12 @@ namespace RabbitMQLibrary
             services.AddScoped<IMessageProducer, MessageProducer>();
         }
 
-        public static void AddMessageConsuming(this IServiceCollection services, string queueName)
+        public static IModel AddMessageConsuming(this IServiceCollection services, string queueName)
         {
             // Create a new rabbitmq connection and add it to the service collection that way every service has the connection
             var connection = new RabbitMqConnection();
-
-            using var channel = connection.CreateChannel();
-            channel.ExchangeDeclare("Kwetter", "fanout", durable: true);
-            channel.QueueDeclare(queueName, durable: true, exclusive: false, autoDelete: false, arguments: null);
-            channel.QueueBind(queueName, "Kwetter", routingKey: string.Empty);
-
-            var consumer = new EventingBasicConsumer(channel);
-            consumer.Received += (model, ea) =>
-            {
-                var body = ea.Body.ToArray();
-                var message = Encoding.UTF8.GetString(body);
-                Console.WriteLine(" [x] Received {0}", message);
-            };
-            channel.BasicConsume(queue: queueName, autoAck: true, consumer: consumer);
+            IModel channel = connection.CreateChannel();
+            return channel;
         }
     }
 }
