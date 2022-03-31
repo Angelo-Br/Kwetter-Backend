@@ -15,15 +15,13 @@ namespace UserService.Controllers
         /// Database context for users, this is used to make calls to the database.
         /// </summary>
         private readonly UserServiceDatabaseContext _dbContext;
-        private readonly IMessageConsumer _messageConsumer;
 
         /// <summary>
         /// Constructer is used for receiving the database context at the creation of the UserController.
         /// </summary>
         /// <param name="dbContext">Context of the database</param>
-        public UserController(UserServiceDatabaseContext dbContext, IMessageConsumer messageConsumer)
+        public UserController(UserServiceDatabaseContext dbContext)
         {
-            _messageConsumer = messageConsumer;
             _dbContext = dbContext;
         }
 

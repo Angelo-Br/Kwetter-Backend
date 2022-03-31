@@ -17,8 +17,7 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddControllers();
-var Model = builder.Services.AddMessageConsuming("MailService");
-new MailConsumer().Boot(Model, "MailService");
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -55,5 +54,12 @@ app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllers();
 });
+
+new Thread(() =>
+{
+    ServiceCollectionExtensions.AddMessageConsuming("MailService");
+    //new MessageConsumingFactory().AddMessageConsuming("MailService");
+}).Start();
+
 
 app.Run();
