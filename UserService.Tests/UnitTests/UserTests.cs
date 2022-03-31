@@ -37,6 +37,7 @@ namespace UserService.Tests
             Assert.Equal(1, users.ElementAt(0).Id);
             Assert.Equal(2, users.ElementAt(1).Id);
             Assert.Equal(5, users.ElementAt(2).Id);
+            Assert.Equal(6, users.ElementAt(3).Id);
         }
 
         private static void SeedUserInMemoryDatabaseWithData(UserServiceDatabaseContext context)
