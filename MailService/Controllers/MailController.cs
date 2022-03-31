@@ -35,7 +35,7 @@ namespace MailService.Controllers
                 MailName = mailModel.MailName,
             };
 
-            // sent the message to the rabbitmq server.
+            // sent the message to the rabbitmq server
             await _messageProducer.PublishMessageAsync("mailmessage", mail);
             return Ok(new { });
         }
