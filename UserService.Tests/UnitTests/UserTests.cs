@@ -37,16 +37,15 @@ namespace UserService.Tests
             Assert.Equal(1, users.ElementAt(0).Id);
             Assert.Equal(2, users.ElementAt(1).Id);
             Assert.Equal(5, users.ElementAt(2).Id);
-            Assert.Equal(6, users.ElementAt(3).Id);
         }
 
         private static void SeedUserInMemoryDatabaseWithData(UserServiceDatabaseContext context)
         {
             var data = new List<User>
                 {
-                    new User { Id = 1 },
-                    new User { Id = 2 },
-                    new User { Id = 5 }
+                    new User { Id = 1, Username = "t" },
+                    new User { Id = 2, Username = "" },
+                    new User { Id = 5, Username = "" }
                 };
             context.Users.AddRange(data);
             context.SaveChanges();
