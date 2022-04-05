@@ -1,6 +1,5 @@
 using Microsoft.OpenApi.Models;
 using RabbitMQLibrary;
-using UserService.Consumer;
 using UserService.DBContexts;
 
 
