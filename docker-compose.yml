@@ -1,0 +1,35 @@
+version: "3.7"
+services:
+    rabbitmq:
+          image: rabbitmq:3-management-alpine
+          container_name: rabbitmq
+          volumes:
+            - rabbitmq:/rabbitmq
+          ports:
+            - "15672:15672"
+            - "5672:5672"
+    user-service:
+        build:
+            context: .
+            dockerfile: Dockerfile_UserService
+        container_name: userservice
+        ports:
+            - "0.0.0.0:8081:80"
+    mail-service:
+        build:
+            context: .
+            dockerfile: Dockerfile_MailService
+        container_name: mailservice
+        ports:
+            - "0.0.0.0:8082:80"
+    apigateway:
+        build:
+            context: .
+            dockerfile: Dockerfile_ApiGateway
+        container_name: apigateway
+        ports:
+            - "0.0.0.0:8083:80"
+volumes:
+    rabbitmq:
+        driver: local
+    sqlvolume:
