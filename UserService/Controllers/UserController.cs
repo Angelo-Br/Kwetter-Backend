@@ -25,6 +25,17 @@ namespace UserService.Controllers
             _dbContext = dbContext;
         }
 
+
+        [HttpGet("testuser")]
+        public async Task<IActionResult> GetTestUser()
+        {
+            User user = new User();
+            user.Id = 1;
+            user.Username = "this is a test user";
+            user.Created = DateTime.Now;
+
+            return Ok(user);
+        }
         /// <summary>
         /// Get all the Users from the database
         /// </summary>

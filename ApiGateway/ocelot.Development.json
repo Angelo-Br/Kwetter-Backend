@@ -11,6 +11,18 @@
       ],
       "UpstreamPathTemplate": "/api/users",
       "UpstreamHttpMethod": [ "Get" ]
+    },
+    {
+      "DownstreamPathTemplate": "/User/testuser",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 59587
+        }
+      ],
+      "UpstreamPathTemplate": "/api/testuser",
+      "UpstreamHttpMethod": [ "Get" ]
     }
   ],
   "GlobalConfiguration": {
