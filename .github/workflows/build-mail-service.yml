@@ -17,7 +17,7 @@ on:
       - ".github/workflows/build-mail-service.yml"
 
 env:
-  PROJECT_PATH: 'UserService/UserService.csproj'
+  PROJECT_PATH: 'MailService/MailService.csproj'
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
