@@ -34,7 +34,7 @@ namespace MailService.DBContexts
                     throw new MissingFieldException("Database environment variable not found");
                 }
 
-                optionsBuilder.UseSqlServer(Environment.GetEnvironmentVariable("kwetter_db_string").Replace("DATABASE_NAME", "MailService"));
+                optionsBuilder.UseSqlServer(Environment.GetEnvironmentVariable("kwetter_db_string").Replace("DATABASE_NAME", "mailservice"));
             }
 
             base.OnConfiguring(optionsBuilder);

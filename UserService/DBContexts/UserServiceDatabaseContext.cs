@@ -45,7 +45,7 @@ namespace UserService.DBContexts
                     throw new MissingFieldException("Database environment variable not found.");
                 }
 
-                optionsBuilder.UseSqlServer(Environment.GetEnvironmentVariable("kwetter_db_string").Replace("DATABASE_NAME", "UserService"));
+                optionsBuilder.UseSqlServer(Environment.GetEnvironmentVariable("kwetter_db_string").Replace("DATABASE_NAME", "userservice"));
             }
 
             base.OnConfiguring(optionsBuilder);
