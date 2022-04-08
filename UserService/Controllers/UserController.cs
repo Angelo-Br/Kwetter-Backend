@@ -37,7 +37,7 @@ namespace UserService.Controllers
             return Ok(user);
         }
         /// <summary>
-        /// Get all the Users from the database
+        /// Get all the Users from the database.
         /// </summary>
         /// <returns>All Users in Db</returns>
         [HttpGet("users")]

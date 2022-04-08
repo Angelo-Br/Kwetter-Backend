@@ -13,7 +13,7 @@ namespace MailService.Controllers
         private readonly IMessageProducer _messageProducer;
 
         /// <summary>
-        /// Constructer is used for receiving the database context at the creation of the UserController.
+        /// Constructer is used for receiving the database context at the creation of the UserController
         /// </summary>
         /// <param name="dbContext">Context of the database</param>
         public MailController(MailServiceDatabaseContext dbContext, IMessageProducer messageProducer)
