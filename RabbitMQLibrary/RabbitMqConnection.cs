@@ -31,7 +31,8 @@ namespace RabbitMQLibrary
                 {
                           new AmqpTcpEndpoint("rabbitmq"),
                           new AmqpTcpEndpoint("localhost"),
-                          new AmqpTcpEndpoint("production-rabbitmqcluster")
+                          new AmqpTcpEndpoint("production-rabbitmqcluster"),
+                          new AmqpTcpEndpoint("production-rabbitmqcluster-server-0")
                 };
                 _connection = factory.CreateConnection(endpoints);
             }
