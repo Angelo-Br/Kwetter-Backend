@@ -4,6 +4,7 @@ using UserService.DBContexts;
 using UserService.DTO;
 using UserService.Models;
 using RabbitMQLibrary;
+using BC = BCrypt.Net.BCrypt;
 
 namespace UserService.Controllers
 {
@@ -23,6 +24,63 @@ namespace UserService.Controllers
         public UserController(UserServiceDatabaseContext dbContext)
         {
             _dbContext = dbContext;
+        }
+
+        [HttpPost("register")]
+        public async Task<IActionResult> Register(RegisterModel registerModel)
+        {
+            if (registerModel == null)
+            {
+                return BadRequest("NO_DATA");
+            }
+
+            if (string.IsNullOrWhiteSpace(registerModel.Username))
+            {
+                return BadRequest("NO_USERNAME");
+            }
+
+            if (string.IsNullOrWhiteSpace(registerModel.Password))
+            {
+                return BadRequest("NO_PASSWORD");
+            }
+
+            if (string.IsNullOrWhiteSpace(registerModel.Email))
+            {
+                return BadRequest("INCORRECT_EMAIL");
+            }
+
+            if (string.IsNullOrWhiteSpace(registerModel.Name))
+            {
+                return BadRequest("NO_NAME");
+            }
+
+            if (await _dbContext.Users.AnyAsync(x => x.Username == registerModel.Username))
+            {
+                return BadRequest("USERNAME_TAKEN");
+            }
+
+            if (await _dbContext.Users.AnyAsync(x => x.Email == registerModel.Email))
+            {
+                return BadRequest("EMAIL_TAKEN");
+            }
+
+            Guid? verifyToken = Guid.Empty;
+            do
+            {
+                verifyToken = Guid.NewGuid();
+            } while (await _dbContext.Users.AnyAsync(x => x.VerifyEmailToken == verifyToken));
+
+            var user = new User()
+            {
+                Username = registerModel.Username,
+                Password = BC.HashPassword(registerModel.Password, BC.GenerateSalt(12)),
+                Email = registerModel.Email,
+                VerifyEmailToken = verifyToken
+            };
+
+            _dbContext.Users.Add(user);
+            await _dbContext.SaveChangesAsync();
+            return Ok();
         }
 
 

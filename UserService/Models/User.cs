@@ -8,19 +8,21 @@ namespace UserService.Models
     /// </summary>
     public class User
     {
-        /// <summary>
-        /// [Key]: Identification number for a User entry in the User table
-        /// [Required]: cannot be null
-        /// Identification number
-        /// </summary>
         [Key]
         [Required]
         public int Id { get; set; }
-
         [Required]
         public string Username { get; set; }
-
+        [Required]
+        public string Email { get; set; }
+        [Required]
+        public string Password { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime? Created { get; set; }
+
+        public Guid? VerifyEmailToken { get; set; }
+
+        [ForeignKey("RoleId")]
+        public Role Role { get; set; }
     }
 }
