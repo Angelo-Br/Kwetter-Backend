@@ -50,7 +50,6 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddDbContext<UserServiceDatabaseContext>();
 
 using var userContext = new UserServiceDatabaseContext();
-//userContext.Database.EnsureDeleted();
 userContext.Database.EnsureCreated();
 
 var app = builder.Build();
@@ -80,7 +79,7 @@ app.UseEndpoints(endpoints =>
 
 new Thread(() =>
 {
-    ServiceCollectionExtensions.AddMessageConsuming("MailService");
+    //ServiceCollectionExtensions.AddMessageConsuming("MailService");
     //new MessageConsumingFactory().AddMessageConsuming("MailService");
 }).Start();
 

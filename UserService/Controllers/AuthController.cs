@@ -35,21 +35,26 @@ namespace UserService.Controllers
                 return BadRequest("MISSING_PASSWORD");
             }
 
-            var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Username == loginModel.Username && BC.Verify(x.Password, loginModel.Password, false, BCrypt.Net.HashType.SHA384));
-            if (user == null)
+            var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Username == loginModel.Username);
+            if (user != null && BC.Verify(loginModel.Password, user.Password, false, BCrypt.Net.HashType.SHA384))
+            {
+                // SWAP THIS BACK TO != NULL ONCE THE EMAIL VERIFICATION IS IMPLEMENTED
+                if (user.VerifyEmailToken == null)
+                {
+                    // Maybe resent mail
+                    return Unauthorized("UNVERIFIED_ACCOUNT");
+                }
+
+                var token = new TokenBuilder().BuildToken(user.Id);
+                var serializedToken = JsonSerializer.Serialize(token);
+                return Ok(serializedToken);
+            }
+
+            else
             {
                 return BadRequest("INCORRECT_DETAILS");
             }
-
-            if (user.VerifyEmailToken != null)
-            {
-                // Maybe resent mail
-                return Unauthorized("UNVERIFIED_ACCOUNT");
-            }
-
-            var token = new TokenBuilder().BuildToken(user.Id);
-            var serializedToken = JsonSerializer.Serialize(token);
-            return Ok(serializedToken);
+            
         }
 
         [HttpPost("verifyemail")]

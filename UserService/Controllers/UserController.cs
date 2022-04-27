@@ -70,12 +70,14 @@ namespace UserService.Controllers
                 verifyToken = Guid.NewGuid();
             } while (await _dbContext.Users.AnyAsync(x => x.VerifyEmailToken == verifyToken));
 
+            var role = await _dbContext.Roles.FindAsync(1);
             var user = new User()
             {
                 Username = registerModel.Username,
                 Password = BC.HashPassword(registerModel.Password, BC.GenerateSalt(12)),
                 Email = registerModel.Email,
-                VerifyEmailToken = verifyToken
+                VerifyEmailToken = verifyToken,
+                Role = role
             };
 
             _dbContext.Users.Add(user);
