@@ -5,6 +5,8 @@ using UserService.DTO;
 using UserService.Models;
 using RabbitMQLibrary;
 using BC = BCrypt.Net.BCrypt;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace UserService.Controllers
 {
@@ -87,6 +89,7 @@ namespace UserService.Controllers
 
 
         [HttpGet("testuser")]
+        [Authorize]
         public async Task<IActionResult> GetTestUser()
         {
             User user = new User();
@@ -94,7 +97,13 @@ namespace UserService.Controllers
             user.Username = "this is a test user";
             user.Created = DateTime.Now;
 
-            return Ok(user);
+            string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            LoggedUserModel model = new LoggedUserModel()
+            {
+                token = userId,
+            };
+
+            return Ok(model);
         }
         /// <summary>
         /// Get all the Users from the database.

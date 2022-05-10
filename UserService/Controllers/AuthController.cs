@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using System.Text.Json;
 using UserService.DBContexts;
 using UserService.DTO;
@@ -85,6 +87,14 @@ namespace UserService.Controllers
             user.VerifyEmailToken = null;
             await _dbContext.SaveChangesAsync();
             return await Login(verifyEmailTokenModel);
+        }
+
+        [HttpGet("loggeduser")]
+        [Authorize]
+        public async Task<IActionResult> GetUserLog()
+        {
+            string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return Ok(userId);
         }
     }
 }
