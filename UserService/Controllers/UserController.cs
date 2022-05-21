@@ -15,6 +15,10 @@ namespace UserService.Controllers
     public class UserController : ControllerBase
     {
         /// <summary>
+        /// Logger for all logging events
+        /// </summary>
+        private readonly ILogger<UserController> _logger;
+        /// <summary>
         /// Database context for users, this is used to make calls to the database.
         /// </summary>
         private readonly UserServiceDatabaseContext _dbContext;
@@ -23,8 +27,9 @@ namespace UserService.Controllers
         /// Constructer is used for receiving the database context at the creation of the UserController.
         /// </summary>
         /// <param name="dbContext">Context of the database</param>
-        public UserController(UserServiceDatabaseContext dbContext)
+        public UserController(ILogger<UserController> logger, UserServiceDatabaseContext dbContext)
         {
+            _logger = logger;
             _dbContext = dbContext;
         }
 
@@ -84,6 +89,7 @@ namespace UserService.Controllers
 
             _dbContext.Users.Add(user);
             await _dbContext.SaveChangesAsync();
+            
             return Ok();
         }
 
@@ -102,6 +108,7 @@ namespace UserService.Controllers
             {
                 token = userId,
             };
+            _logger.LogInformation("User with token {userId} has been tested");
 
             return Ok(model);
         }

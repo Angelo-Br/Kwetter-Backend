@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using RabbitMQLibrary;
+using Serilog;
 using System.Text;
 using UserService.DBContexts;
 
@@ -37,6 +38,24 @@ builder.Services.AddCors(options =>
             .AllowCredentials());
 });
 
+
+// Add all the logging components
+var configuration = new ConfigurationBuilder()
+        .SetBasePath(Directory.GetCurrentDirectory())
+        .AddJsonFile("appsettings.json")
+        .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json", true)
+        .Build();
+
+var logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(configuration)
+                .Enrich.WithThreadId()
+                .Enrich.WithThreadName()
+                .Enrich.WithEnvironmentUserName()
+                .Enrich.WithMachineName().CreateLogger();
+
+builder.Host.UseSerilog(logger);
+
+// add controllers
 builder.Services.AddControllers();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -61,6 +80,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "UserService v1"));
 }
+
+
+
+app.UseSerilogRequestLogging();
 
 app.UseCors("CorsPolicy");
 
