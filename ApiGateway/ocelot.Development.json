@@ -25,6 +25,18 @@
       "UpstreamHttpMethod": [ "Get" ]
     },
     {
+      "DownstreamPathTemplate": "/User/changeusername",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 59587
+        }
+      ],
+      "UpstreamPathTemplate": "/api/user/changeusername",
+      "UpstreamHttpMethod": [ "Post" ]
+    },
+    {
       "DownstreamPathTemplate": "/Auth/login",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [

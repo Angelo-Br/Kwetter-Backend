@@ -36,7 +36,7 @@ namespace MailService.Controllers
             };
 
             // sent the message to the rabbitmq server test
-            await _messageProducer.PublishMessageAsync("mailmessage", mail);
+            //await _messageProducer.PublishMessageAsync("mailmessage", mail);
             return Ok(new { });
         }
     }

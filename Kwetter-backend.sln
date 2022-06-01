@@ -18,7 +18,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MailService", "MailService\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RabbitMQLibrary", "RabbitMQLibrary\RabbitMQLibrary.csproj", "{3167061B-01C7-4BD1-B58C-B6214C30F447}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureFunctionsLibs", "AzureFunctionsLibs\AzureFunctionsLibs.csproj", "{5713CDD4-3F17-4E32-8DD0-7BFDEAD19735}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AzureFunctionsLibs", "AzureFunctionsLibs\AzureFunctionsLibs.csproj", "{5713CDD4-3F17-4E32-8DD0-7BFDEAD19735}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KweetService", "KweetService\KweetService.csproj", "{8C83E9BE-D3D1-406F-810A-C98CB46C1119}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -50,6 +52,10 @@ Global
 		{5713CDD4-3F17-4E32-8DD0-7BFDEAD19735}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5713CDD4-3F17-4E32-8DD0-7BFDEAD19735}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5713CDD4-3F17-4E32-8DD0-7BFDEAD19735}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8C83E9BE-D3D1-406F-810A-C98CB46C1119}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C83E9BE-D3D1-406F-810A-C98CB46C1119}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C83E9BE-D3D1-406F-810A-C98CB46C1119}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C83E9BE-D3D1-406F-810A-C98CB46C1119}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

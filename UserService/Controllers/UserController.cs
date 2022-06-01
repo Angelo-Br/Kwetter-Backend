@@ -7,6 +7,7 @@ using RabbitMQLibrary;
 using BC = BCrypt.Net.BCrypt;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
+using UserService.Helpers;
 
 namespace UserService.Controllers
 {
@@ -22,13 +23,20 @@ namespace UserService.Controllers
         /// Database context for users, this is used to make calls to the database.
         /// </summary>
         private readonly UserServiceDatabaseContext _dbContext;
+        /// <summary>
+        /// Rabbitmq producer interface to interact with rabbitMQ
+        /// </summary>
+        private readonly IMessageProducer _producer;
+        private readonly UserServiceHelper _helper;
 
         /// <summary>
         /// Constructer is used for receiving the database context at the creation of the UserController.
         /// </summary>
         /// <param name="dbContext">Context of the database</param>
-        public UserController(ILogger<UserController> logger, UserServiceDatabaseContext dbContext)
+        public UserController(ILogger<UserController> logger, IMessageProducer producer, UserServiceDatabaseContext dbContext)
         {
+            _helper = new UserServiceHelper();
+            _producer = producer;
             _logger = logger;
             _dbContext = dbContext;
         }
@@ -129,6 +137,34 @@ namespace UserService.Controllers
             return Ok(users);
         }
 
+        [HttpPost("changeusername")]
+        [Authorize]
+        public async Task<IActionResult> ChangeUsername(ChangeUsernameModel changeUsernameModel)
+        {
+            string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == Convert.ToInt32(userId));
+            if (user == null)
+            {
+                return BadRequest("User doesnt exist");
+            }
+            if (BC.Verify(changeUsernameModel.Password, user.Password, false, BCrypt.Net.HashType.SHA384))
+            {
+                user.Username = changeUsernameModel.NewUserName;
+                await _dbContext.SaveChangesAsync();
+
+                //Rabbitmq calls
+                _producer.PublishMessageAsync(RoutingKeyType.UsernameUpdated, _helper.UserToUsernameUpdatedDTO(Convert.ToInt32(userId), changeUsernameModel.NewUserName));
+                return Ok("Changed username to " + changeUsernameModel.NewUserName);
+            }
+            else
+            {
+                return BadRequest("Password doesnt match");
+            }
+           
+        }
+
+
+        //OLD TEST CODE
         [HttpPost("adduser")]
         public async Task<IActionResult> AddUser(LoginModel loginModel)
         {

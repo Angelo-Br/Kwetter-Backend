@@ -1,4 +1,6 @@
-﻿using RabbitMQ.Client;
+﻿using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using RabbitMQ.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,33 +12,36 @@ namespace RabbitMQLibrary
 {
     internal class MessageProducer : IMessageProducer
     {
-        public const string EXCHANGE_NAME = "Kwetter";
-        private readonly string _queueName;
+        private readonly string _exchangeName;
         private readonly RabbitMqConnection _connection;
 
-        public MessageProducer(QueueName queueName, RabbitMqConnection connection)
+        private readonly ILogger<MessageProducer> _logger;
+
+        public MessageProducer(ILogger<MessageProducer> logger, ExchangeName exchangeName, RabbitMqConnection connection)
         {
-            _queueName = queueName.Name;
+            _exchangeName = exchangeName.Name;
+            _logger = logger;
             _connection = connection;
         }
 
-        public Task PublishMessageAsync<T>(string messageType, T value)
+        public void PublishMessageAsync<T>(string routingKey, T message)
         {
-            using var channel = _connection.CreateChannel();
-            channel.ExchangeDeclare(EXCHANGE_NAME, "fanout", durable: true);
-            channel.QueueDeclare(_queueName, durable: true, exclusive: false, autoDelete: false, arguments: null);
-            channel.QueueBind(_queueName, EXCHANGE_NAME, routingKey: string.Empty);
+            _logger.LogInformation($"Sending message {message} with routing key {routingKey}");
 
-            var message = channel.CreateBasicProperties();
-            message.ContentType = "application/json";
-            message.DeliveryMode = 2;
-            // Add a MessageType header, this part is crucial for our solution because it is our way of distinguishing messages
-            message.Headers = new Dictionary<string, object> { ["MessageType"] = messageType };
-            var body = JsonSerializer.SerializeToUtf8Bytes(value);
+            using (IModel channel = _connection.CreateChannel())
+            {
+                channel.ExchangeDeclare(exchange: _exchangeName,
+                                        durable: true,
+                                        type: ExchangeType.Topic);
 
-            // Publish this without a routing key to the rabbitmq broker
-            channel.BasicPublish(EXCHANGE_NAME, _queueName, message, body);
-            return Task.CompletedTask;
+                string messageBody = JsonConvert.SerializeObject(message);
+                byte[] body = Encoding.UTF8.GetBytes(messageBody);
+
+                channel.BasicPublish(exchange: _exchangeName,
+                                     routingKey: routingKey,
+                                     basicProperties: null,
+                                     body: body);
+            }
         }
     }
 }
