@@ -1,4 +1,7 @@
-﻿using KweetService.Models;
+﻿using KweetService.DbContexts;
+using KweetService.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -13,12 +16,12 @@ namespace KweetService.Messaging
         private ConnectionFactory _factory;
         private IConnection _connection;
         private IModel _channel;
-     
+        private readonly KweetServiceDatabaseContext _dbContext;
 
-        public RabbitMQWorker(ILogger<RabbitMQWorker> logger)
+        public RabbitMQWorker(ILogger<RabbitMQWorker> logger, KweetServiceDatabaseContext dbContext)
         {
             _logger = logger;
-          
+            _dbContext = dbContext;
         }
 
         public override Task StartAsync(CancellationToken cancellationToken)
@@ -82,8 +85,49 @@ namespace KweetService.Messaging
 
                 switch (eventArgs.RoutingKey)
                 {
+                    case RoutingKeyType.UserCreated:
+                        var createdUser = JsonConvert.DeserializeObject<User>(message);
+                        if (createdUser == null)
+                        {
+                            _logger.LogCritical("Failed to deserialize object" + message);
+                        }
+                        _dbContext.Users.Add(createdUser);
+                        _dbContext.SaveChanges();
+                        break;
                     case RoutingKeyType.UsernameUpdated:
-                        var user = JsonConvert.DeserializeObject<User>(message);
+                        var newUser = JsonConvert.DeserializeObject<User>(message);
+                        if (newUser == null)
+                        {
+                            _logger.LogCritical("Failed to deserialize object" + message);
+                        }
+                        var oldUser = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == newUser.Id);
+                        if (oldUser == default)
+                        {
+                            _logger.LogCritical("User "+ newUser.Username +" doesnt exist " + "Error occured:"+ DateTime.Now);
+                        }
+                        else
+                        {
+                            oldUser.Username = newUser.Username;
+                            await _dbContext.SaveChangesAsync();
+                            _logger.LogInformation(newUser.Username+"User has his username changed");
+                        }
+                        break;
+                    case RoutingKeyType.UserDeleted:
+                        var deletedUser = JsonConvert.DeserializeObject<User>(message);
+                        if (deletedUser == null)
+                        {
+                            _logger.LogCritical("Failed to deserialize object" + message);
+                        }
+                        var userToBeDeleted = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == deletedUser.Id);
+                        if (userToBeDeleted == default)
+                        {
+                            _logger.LogError("User already has been deleted" + "Error occured:"+ DateTime.Now);
+                        }
+                        else
+                        {
+                            _dbContext.Remove(userToBeDeleted);
+                            await _dbContext.SaveChangesAsync();
+                        }
                         break;
                     default:
                         break;

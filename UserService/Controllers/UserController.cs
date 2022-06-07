@@ -96,6 +96,7 @@ namespace UserService.Controllers
             };
 
             _dbContext.Users.Add(user);
+            _producer.PublishMessageAsync(RoutingKeyType.UserCreated, _helper.UserToKweetServiceUserDTO(user));
             await _dbContext.SaveChangesAsync();
             
             return Ok();
@@ -163,6 +164,29 @@ namespace UserService.Controllers
            
         }
 
+        [HttpPost("deleteuser")]
+        [Authorize]
+        public async Task<IActionResult> DeleteUser(DeleteUserModel deleteUserModel)
+        {
+            string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == Convert.ToInt32(userId));
+            if (user == null)
+            {
+                return BadRequest("User doesnt exist");
+            }
+            if (deleteUserModel.UserName == user.Username && BC.Verify(deleteUserModel.Password, user.Password, false, BCrypt.Net.HashType.SHA384))
+            {
+                _dbContext.Remove(user);
+                _dbContext.SaveChanges();
+
+                _producer.PublishMessageAsync(RoutingKeyType.UserDeleted, _helper.UserToKweetServiceUserDTO(user));
+                return Ok("Deleted your account");
+            }
+            else
+            {
+                return BadRequest("Password or username didnt match");
+            }
+        }
 
         //OLD TEST CODE
         [HttpPost("adduser")]

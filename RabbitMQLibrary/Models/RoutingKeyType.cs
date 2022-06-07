@@ -8,6 +8,7 @@ namespace RabbitMQLibrary
 {
     public static class RoutingKeyType
     {
+        public const string UserCreated = "user.created";
         public const string UsernameUpdated = "username.updated";
         public const string UserDeleted = "user.deleted";
     }

@@ -1,4 +1,5 @@
 ﻿using UserService.DTO;
+using UserService.Models;
 
 namespace UserService.Helpers
 {
@@ -15,6 +16,20 @@ namespace UserService.Helpers
             {
                 Id = id,
                 Username = newUsername,
+            };
+        }
+
+        public UserToKweetServiceUserDTO UserToKweetServiceUserDTO(User user)
+        {
+            if (user == default)
+            {
+                throw new ArgumentNullException(nameof(user.Id));
+            }
+
+            return new UserToKweetServiceUserDTO()
+            {
+                Id=user.Id,
+                Username = user.Username,
             };
         }
     }

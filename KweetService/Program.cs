@@ -1,3 +1,4 @@
+using KweetService.DbContexts;
 using KweetService.Messaging;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +10,11 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHostedService<RabbitMQWorker>();
+
+builder.Services.AddDbContext<KweetServiceDatabaseContext>();
+
+using var kweetContext = new KweetServiceDatabaseContext();
+kweetContext.Database.EnsureCreated();
 
 var app = builder.Build();
 
