@@ -22,7 +22,7 @@ namespace KweetService.DbContexts
         }
 
         public DbSet<Kweet> Kweets { get; set; }
-        public DbSet<Like> Likes { get; set; }
+      
         public DbSet<User> Users { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -41,10 +41,10 @@ namespace KweetService.DbContexts
             base.OnConfiguring(optionsBuilder);
         }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Like>().HasNoKey();
-            base.OnModelCreating(modelBuilder);
-        }
+        //protected override void OnModelCreating(ModelBuilder modelBuilder)
+        //{
+        //    modelBuilder.Entity<Like>().HasNoKey();
+        //    base.OnModelCreating(modelBuilder);
+        //}
     }
 }

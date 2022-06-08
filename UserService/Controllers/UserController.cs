@@ -96,9 +96,10 @@ namespace UserService.Controllers
             };
 
             _dbContext.Users.Add(user);
-            _producer.PublishMessageAsync(RoutingKeyType.UserCreated, _helper.UserToKweetServiceUserDTO(user));
             await _dbContext.SaveChangesAsync();
-            
+
+            _producer.PublishMessageAsync(RoutingKeyType.UserCreated, _helper.UserToKweetServiceUserDTO(user));
+
             return Ok();
         }
 
@@ -148,13 +149,19 @@ namespace UserService.Controllers
             {
                 return BadRequest("User doesnt exist");
             }
+            var existingUsername = await _dbContext.Users.FirstOrDefaultAsync(x => x.Username == changeUsernameModel.NewUserName);
+            if (existingUsername != null)
+            {
+                return BadRequest("username is already taken");
+            }
             if (BC.Verify(changeUsernameModel.Password, user.Password, false, BCrypt.Net.HashType.SHA384))
             {
+                string oldUsername = user.Username;
                 user.Username = changeUsernameModel.NewUserName;
                 await _dbContext.SaveChangesAsync();
 
                 //Rabbitmq calls
-                _producer.PublishMessageAsync(RoutingKeyType.UsernameUpdated, _helper.UserToUsernameUpdatedDTO(Convert.ToInt32(userId), changeUsernameModel.NewUserName));
+                _producer.PublishMessageAsync(RoutingKeyType.UsernameUpdated, _helper.UserToUsernameUpdatedDTO(Convert.ToInt32(userId), changeUsernameModel.NewUserName, oldUsername));
                 return Ok("Changed username to " + changeUsernameModel.NewUserName);
             }
             else
@@ -174,7 +181,7 @@ namespace UserService.Controllers
             {
                 return BadRequest("User doesnt exist");
             }
-            if (deleteUserModel.UserName == user.Username && BC.Verify(deleteUserModel.Password, user.Password, false, BCrypt.Net.HashType.SHA384))
+            if (BC.Verify(deleteUserModel.Password, user.Password, false, BCrypt.Net.HashType.SHA384))
             {
                 _dbContext.Remove(user);
                 _dbContext.SaveChanges();

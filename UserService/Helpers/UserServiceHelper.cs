@@ -5,7 +5,7 @@ namespace UserService.Helpers
 {
     public class UserServiceHelper
     {
-        public UsernameUpdatedDTO UserToUsernameUpdatedDTO(int id, string newUsername)
+        public UsernameUpdatedDTO UserToUsernameUpdatedDTO(int id, string newUsername, string oldUsername)
         {
             if (id == default || newUsername == default)
             {
@@ -16,6 +16,7 @@ namespace UserService.Helpers
             {
                 Id = id,
                 Username = newUsername,
+                oldUsername = oldUsername
             };
         }
 

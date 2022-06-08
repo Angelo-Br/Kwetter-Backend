@@ -1,6 +1,6 @@
-﻿namespace UserService.DTO
+﻿namespace KweetService.DTO
 {
-    public class UsernameUpdatedDTO
+    public class UsernameChangedDTO
     {
         public string Username { get; set; }
         public string oldUsername { get; set; }

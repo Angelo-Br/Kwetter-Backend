@@ -1,4 +1,5 @@
 ﻿using KweetService.DbContexts;
+using KweetService.DTO;
 using KweetService.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -18,10 +19,10 @@ namespace KweetService.Messaging
         private IModel _channel;
         private readonly KweetServiceDatabaseContext _dbContext;
 
-        public RabbitMQWorker(ILogger<RabbitMQWorker> logger, KweetServiceDatabaseContext dbContext)
+        public RabbitMQWorker(ILogger<RabbitMQWorker> logger, IServiceScopeFactory factory)
         {
             _logger = logger;
-            _dbContext = dbContext;
+            _dbContext = factory.CreateScope().ServiceProvider.GetRequiredService<KweetServiceDatabaseContext>();
         }
 
         public override Task StartAsync(CancellationToken cancellationToken)
@@ -53,6 +54,7 @@ namespace KweetService.Messaging
             {
                 RoutingKeyType.UsernameUpdated,
                 RoutingKeyType.UserDeleted,
+                RoutingKeyType.UserCreated
             };
             foreach (var routingKey in routingKeys)
             {
@@ -91,25 +93,29 @@ namespace KweetService.Messaging
                         {
                             _logger.LogCritical("Failed to deserialize object" + message);
                         }
-                        _dbContext.Users.Add(createdUser);
-                        _dbContext.SaveChanges();
+                        User finaluser = new User()
+                        {
+                            Username = createdUser.Username
+                        };
+                        _dbContext.Users.Add(finaluser);
+                        await _dbContext.SaveChangesAsync();
                         break;
                     case RoutingKeyType.UsernameUpdated:
-                        var newUser = JsonConvert.DeserializeObject<User>(message);
+                        var newUser = JsonConvert.DeserializeObject<UsernameChangedDTO>(message);
                         if (newUser == null)
                         {
                             _logger.LogCritical("Failed to deserialize object" + message);
                         }
-                        var oldUser = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == newUser.Id);
+                        var oldUser = await _dbContext.Users.FirstOrDefaultAsync(x => x.Username == newUser.oldUsername);
                         if (oldUser == default)
                         {
-                            _logger.LogCritical("User "+ newUser.Username +" doesnt exist " + "Error occured:"+ DateTime.Now);
+                            _logger.LogCritical("User " + newUser.oldUsername + " doesnt exist " + "Error occured:" + DateTime.Now);
                         }
                         else
                         {
                             oldUser.Username = newUser.Username;
                             await _dbContext.SaveChangesAsync();
-                            _logger.LogInformation(newUser.Username+"User has his username changed");
+                            _logger.LogInformation(newUser.oldUsername + "User has his username changed to " + newUser.Username);
                         }
                         break;
                     case RoutingKeyType.UserDeleted:
@@ -118,10 +124,10 @@ namespace KweetService.Messaging
                         {
                             _logger.LogCritical("Failed to deserialize object" + message);
                         }
-                        var userToBeDeleted = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == deletedUser.Id);
+                        var userToBeDeleted = await _dbContext.Users.FirstOrDefaultAsync(x => x.Username == deletedUser.Username);
                         if (userToBeDeleted == default)
                         {
-                            _logger.LogError("User already has been deleted" + "Error occured:"+ DateTime.Now);
+                            _logger.LogError("User already has been deleted" + "Error occured:" + DateTime.Now);
                         }
                         else
                         {

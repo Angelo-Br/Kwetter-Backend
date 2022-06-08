@@ -17,10 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="DTO\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\RabbitMQLibrary\RabbitMQLibrary.csproj" />
   </ItemGroup>
 

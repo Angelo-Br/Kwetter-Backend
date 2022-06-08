@@ -37,6 +37,18 @@
       "UpstreamHttpMethod": [ "Post" ]
     },
     {
+      "DownstreamPathTemplate": "/User/deleteuser",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 59587
+        }
+      ],
+      "UpstreamPathTemplate": "/api/user/deleteuser",
+      "UpstreamHttpMethod": [ "Post" ]
+    },
+    {
       "DownstreamPathTemplate": "/Auth/login",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
